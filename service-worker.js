@@ -1,4 +1,4 @@
-const CACHE_NAME = 'sleepnav-v3';
+const CACHE_NAME = 'sleepnav-v4';
 const BASE_PATH = '/sleep-nav';
 const urlsToCache = [
   `${BASE_PATH}/`,
