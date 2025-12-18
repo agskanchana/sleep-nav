@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Icon Generator for SleepNav</title>
+</head>
+<body>
+    <h1>Generating Icons...</h1>
+    <p>Icons will download automatically. Save them to your project folder.</p>
+    <div id="status"></div>
+    
+    <script>
+        const status = document.getElementById('status');
+        
+        function createIcon(size, isMaskable = false, filename) {
+            const canvas = document.createElement('canvas');
+            canvas.width = size;
+            canvas.height = size;
+            const ctx = canvas.getContext('2d');
+            
+            // Green background
+            ctx.fillStyle = '#16a34a';
+            ctx.fillRect(0, 0, size, size);
+            
+            const padding = isMaskable ? size * 0.15 : size * 0.1;
+            const rectSize = (size - padding * 2) * 0.85;
+            const rectX = (size - rectSize) / 2;
+            const rectY = (size - rectSize) / 2;
+            
+            // White background
+            ctx.fillStyle = '#ffffff';
+            const radius = rectSize * 0.1;
+            ctx.beginPath();
+            ctx.moveTo(rectX + radius, rectY);
+            ctx.lineTo(rectX + rectSize - radius, rectY);
+            ctx.quadraticCurveTo(rectX + rectSize, rectY, rectX + rectSize, rectY + radius);
+            ctx.lineTo(rectX + rectSize, rectY + rectSize - radius);
+            ctx.quadraticCurveTo(rectX + rectSize, rectY + rectSize, rectX + rectSize - radius, rectY + rectSize);
+            ctx.lineTo(rectX + radius, rectY + rectSize);
+            ctx.quadraticCurveTo(rectX, rectY + rectSize, rectX, rectY + rectSize - radius);
+            ctx.lineTo(rectX, rectY + radius);
+            ctx.quadraticCurveTo(rectX, rectY, rectX + radius, rectY);
+            ctx.closePath();
+            ctx.fill();
+            
+            // Draw bed icon
+            ctx.fillStyle = '#1e3a5f';
+            const scale = rectSize / 100;
+            const x = rectX + rectSize * 0.15;
+            const y = rectY + rectSize * 0.45;
+            
+            // Bed base
+            ctx.fillRect(x, y, 60 * scale, 8 * scale);
+            // Mattress
+            ctx.fillRect(x + 5 * scale, y - 8 * scale, 50 * scale, 8 * scale);
+            // Pillow
+            ctx.beginPath();
+            ctx.arc(x + 45 * scale, y - 12 * scale, 8 * scale, 0, Math.PI * 2);
+            ctx.fill();
+            // Headboard
+            ctx.fillRect(x + 55 * scale, y - 30 * scale, 4 * scale, 30 * scale);
+            
+            // Text
+            ctx.fillStyle = '#1e3a5f';
+            ctx.font = `bold ${size * 0.11}px Arial, sans-serif`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('SleepNav', size / 2, rectY + rectSize * 0.75);
+            
+            // Download
+            canvas.toBlob(blob => {
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename;
+                a.click();
+                URL.revokeObjectURL(url);
+                status.innerHTML += `<p>✓ Downloaded: ${filename}</p>`;
+            }, 'image/png');
+        }
+        
+        setTimeout(() => {
+            createIcon(192, false, 'icon-192.png');
+        }, 100);
+        
+        setTimeout(() => {
+            createIcon(512, false, 'icon-512.png');
+        }, 300);
+        
+        setTimeout(() => {
+            createIcon(192, true, 'icon-192-maskable.png');
+        }, 500);
+        
+        setTimeout(() => {
+            createIcon(512, true, 'icon-512-maskable.png');
+        }, 700);
+        
+        setTimeout(() => {
+            status.innerHTML += '<p><strong>✅ All icons downloaded! Upload them to GitHub with your code.</strong></p>';
+        }, 1000);
+    </script>
+</body>
+</html>
