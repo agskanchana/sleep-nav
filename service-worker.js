@@ -1,9 +1,11 @@
-const CACHE_NAME = 'sleepnav-v2';
+const CACHE_NAME = 'sleepnav-v3';
 const BASE_PATH = '/sleep-nav';
 const urlsToCache = [
   `${BASE_PATH}/`,
   `${BASE_PATH}/index.html`,
-  `${BASE_PATH}/manifest.json`
+  `${BASE_PATH}/manifest.json`,
+  `${BASE_PATH}/icon-192.png`,
+  `${BASE_PATH}/icon-512.png`
 ];
 
 // Install service worker and cache resources
