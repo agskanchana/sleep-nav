@@ -1,0 +1,1171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#1e3a5f">
+    <meta name="description" content="Sleep Health Check - Self-triage kiosk for community pharmacy sleep services">
+    <title>SleepNav Zone - Sleep Health Check</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --navy: #1e3a5f;
+            --dark-navy: #152844;
+            --green: #16a34a;
+            --light-gray: #f5f5f5;
+            --border-gray: #e0e0e0;
+            --text-gray: #666;
+            --red: #dc2626;
+            --amber: #f59e0b;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: var(--light-gray);
+        }
+
+        .screen {
+            display: none;
+            min-height: 100vh;
+        }
+
+        .screen.active {
+            display: flex;
+        }
+
+        /* Start Screen */
+        #startScreen {
+            background: var(--navy);
+            color: white;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .video-placeholder {
+            color: rgba(255, 255, 255, 0.6);
+            font-style: italic;
+            margin-bottom: 2rem;
+            font-size: 0.9rem;
+        }
+
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            font-weight: 300;
+        }
+
+        .cyan {
+            color: #22d3ee;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            font-weight: 300;
+        }
+
+        .btn-start {
+            background: var(--green);
+            color: white;
+            border: none;
+            padding: 1rem 3rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: background 0.3s;
+        }
+
+        .btn-start:hover {
+            background: #15803d;
+        }
+
+        .footer-text {
+            position: absolute;
+            bottom: 2rem;
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        /* Form Screens */
+        .form-screen {
+            background: white;
+            flex-direction: column;
+            padding: 0;
+        }
+
+        .header {
+            background: white;
+            padding: 1.5rem 2rem;
+            border-bottom: 1px solid var(--border-gray);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--navy);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn-icon {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.5rem;
+            color: var(--text-gray);
+            padding: 0.5rem;
+        }
+
+        .form-container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 3rem 2rem;
+            width: 100%;
+        }
+
+        .form-title {
+            font-size: 2rem;
+            margin-bottom: 2rem;
+            color: var(--navy);
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--navy);
+        }
+
+        input[type="number"],
+        input[type="text"],
+        select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border-gray);
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        input:focus,
+        select:focus {
+            outline: none;
+            border-color: var(--green);
+        }
+
+        .unit-toggle {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .unit-btn {
+            flex: 1;
+            padding: 0.75rem;
+            border: 1px solid var(--border-gray);
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+
+        .unit-btn.active {
+            background: var(--green);
+            color: white;
+            border-color: var(--green);
+        }
+
+        .height-weight-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .btn-primary {
+            width: 100%;
+            background: var(--green);
+            color: white;
+            border: none;
+            padding: 1rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            text-transform: uppercase;
+            transition: background 0.3s;
+        }
+
+        .btn-primary:hover {
+            background: #15803d;
+        }
+
+        .btn-primary:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        /* Choice Cards */
+        .choice-cards {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .choice-card {
+            padding: 1.5rem;
+            border: 2px solid var(--border-gray);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            background: white;
+        }
+
+        .choice-card:hover {
+            border-color: var(--green);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .choice-icon {
+            font-size: 2.5rem;
+            flex-shrink: 0;
+        }
+
+        .choice-content h3 {
+            font-size: 1.2rem;
+            margin-bottom: 0.25rem;
+            color: var(--navy);
+        }
+
+        .choice-content p {
+            color: var(--text-gray);
+            font-size: 0.9rem;
+        }
+
+        /* Toggle Switches */
+        .question-group {
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            background: var(--light-gray);
+            border-radius: 8px;
+        }
+
+        .question-text {
+            margin-bottom: 1rem;
+            color: var(--navy);
+            font-weight: 500;
+        }
+
+        .toggle-group {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .toggle-btn {
+            flex: 1;
+            padding: 0.75rem;
+            border: 2px solid var(--border-gray);
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .toggle-btn.active.yes {
+            background: var(--green);
+            color: white;
+            border-color: var(--green);
+        }
+
+        .toggle-btn.active.no {
+            background: var(--text-gray);
+            color: white;
+            border-color: var(--text-gray);
+        }
+
+        /* Epworth Scale */
+        .epworth-question {
+            margin-bottom: 2rem;
+        }
+
+        .epworth-question h4 {
+            margin-bottom: 1rem;
+            color: var(--navy);
+            font-weight: 500;
+            line-height: 1.5;
+        }
+
+        .epworth-options {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.75rem;
+        }
+
+        .epworth-option {
+            padding: 0.75rem;
+            border: 2px solid var(--border-gray);
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s;
+            font-size: 0.9rem;
+        }
+
+        .epworth-option.selected {
+            background: var(--green);
+            color: white;
+            border-color: var(--green);
+        }
+
+        .score-display {
+            position: sticky;
+            top: 0;
+            background: var(--navy);
+            color: white;
+            padding: 1rem;
+            text-align: center;
+            font-size: 1.2rem;
+            font-weight: 600;
+            z-index: 10;
+        }
+
+        /* Results Screen */
+        #resultsScreen {
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .results-container {
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .result-icon {
+            font-size: 5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .result-title {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            color: var(--navy);
+        }
+
+        .result-message {
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+            color: var(--text-gray);
+            line-height: 1.6;
+        }
+
+        .handover-code {
+            background: black;
+            color: var(--green);
+            padding: 2rem;
+            border-radius: 12px;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 2rem;
+            letter-spacing: 2px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .handover-code.red {
+            color: var(--red);
+        }
+
+        .handover-code.amber {
+            color: var(--amber);
+        }
+
+        .clinical-summary {
+            background: var(--light-gray);
+            border: 1px solid var(--border-gray);
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: left;
+            margin-bottom: 2rem;
+        }
+
+        .clinical-summary h3 {
+            margin-bottom: 1rem;
+            color: var(--navy);
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid var(--border-gray);
+        }
+
+        .summary-row:last-child {
+            border-bottom: none;
+        }
+
+        .summary-label {
+            font-weight: 500;
+            color: var(--text-gray);
+        }
+
+        .summary-value {
+            font-weight: 600;
+            color: var(--navy);
+        }
+
+        .disclaimer {
+            font-size: 0.75rem;
+            color: var(--text-gray);
+            margin-top: 1rem;
+        }
+
+        .btn-restart {
+            background: var(--navy);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+
+            .form-title {
+                font-size: 1.5rem;
+            }
+
+            .handover-code {
+                font-size: 1.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Start Screen -->
+    <div id="startScreen" class="screen active">
+        <div class="video-placeholder">[Video Placeholder: 1 – pre Christmas stress.mp4]</div>
+        <h1>Tired of being <span class="cyan">tired?</span></h1>
+        <p class="subtitle">Take your 2-minute Sleep Health Check</p>
+        <button class="btn-start" onclick="startAssessment()">TAP TO START</button>
+        <p class="footer-text">© 2026 Snorer.com Ltd. SleepNav® is a registered trademark (UK00003706156).</p>
+    </div>
+
+    <!-- Demographics Screen -->
+    <div id="demographicsScreen" class="screen form-screen">
+        <div class="header">
+            <div class="logo">🛏️ SleepNav</div>
+            <div class="header-actions">
+                <button class="btn-icon" onclick="restartApp()" title="Start Over">↺</button>
+                <button class="btn-icon" onclick="closeApp()" title="Close">✕</button>
+            </div>
+        </div>
+        <div class="form-container">
+            <h2 class="form-title">First, a few quick details</h2>
+            
+            <div class="form-group">
+                <label for="age">Age</label>
+                <input type="number" id="age" placeholder="Enter your age" min="18" max="120">
+            </div>
+
+            <div class="form-group">
+                <label for="gender">Gender</label>
+                <select id="gender">
+                    <option value="">Select</option>
+                    <option value="M">Male</option>
+                    <option value="F">Female</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+
+            <div class="unit-toggle">
+                <button class="unit-btn active" onclick="setUnit('metric')">Metric (cm/kg)</button>
+                <button class="unit-btn" onclick="setUnit('imperial')">Imperial (ft/in, st/lbs)</button>
+            </div>
+
+            <div id="metricInputs">
+                <div class="height-weight-grid">
+                    <div class="form-group">
+                        <label for="heightCm">Height (cm)</label>
+                        <input type="number" id="heightCm" placeholder="170" min="100" max="250">
+                    </div>
+                    <div class="form-group">
+                        <label for="weightKg">Weight (kg)</label>
+                        <input type="number" id="weightKg" placeholder="70" min="30" max="300">
+                    </div>
+                </div>
+            </div>
+
+            <div id="imperialInputs" style="display: none;">
+                <div class="height-weight-grid">
+                    <div class="form-group">
+                        <label for="heightFt">Height (ft)</label>
+                        <input type="number" id="heightFt" placeholder="5" min="3" max="8">
+                    </div>
+                    <div class="form-group">
+                        <label for="heightIn">Height (in)</label>
+                        <input type="number" id="heightIn" placeholder="7" min="0" max="11">
+                    </div>
+                </div>
+                <div class="height-weight-grid">
+                    <div class="form-group">
+                        <label for="weightSt">Weight (st)</label>
+                        <input type="number" id="weightSt" placeholder="11" min="5" max="50">
+                    </div>
+                    <div class="form-group">
+                        <label for="weightLbs">Weight (lbs)</label>
+                        <input type="number" id="weightLbs" placeholder="0" min="0" max="13">
+                    </div>
+                </div>
+            </div>
+
+            <button class="btn-primary" onclick="submitDemographics()">NEXT</button>
+        </div>
+    </div>
+
+    <!-- Triage Screen -->
+    <div id="triageScreen" class="screen form-screen">
+        <div class="header">
+            <div class="logo">🛏️ SleepNav</div>
+            <div class="header-actions">
+                <button class="btn-icon" onclick="restartApp()" title="Start Over">↺</button>
+                <button class="btn-icon" onclick="closeApp()" title="Close">✕</button>
+            </div>
+        </div>
+        <div class="form-container">
+            <h2 class="form-title">What brings you here today?</h2>
+            <div class="choice-cards">
+                <div class="choice-card" onclick="selectComplaint('insomnia')">
+                    <div class="choice-icon">😴</div>
+                    <div class="choice-content">
+                        <h3>Can't Sleep</h3>
+                        <p>Difficulty falling or staying asleep</p>
+                    </div>
+                </div>
+                <div class="choice-card" onclick="selectComplaint('osa')">
+                    <div class="choice-icon">😪</div>
+                    <div class="choice-content">
+                        <h3>Falling Asleep / Snoring</h3>
+                        <p>Excessive daytime sleepiness or snoring</p>
+                    </div>
+                </div>
+                <div class="choice-card" onclick="selectComplaint('other')">
+                    <div class="choice-icon">🦵</div>
+                    <div class="choice-content">
+                        <h3>Restless Legs / Other</h3>
+                        <p>Uncomfortable sensations or other concerns</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Insomnia Duration Screen -->
+    <div id="insomniaDurationScreen" class="screen form-screen">
+        <div class="header">
+            <div class="logo">🛏️ SleepNav</div>
+            <div class="header-actions">
+                <button class="btn-icon" onclick="restartApp()" title="Start Over">↺</button>
+                <button class="btn-icon" onclick="closeApp()" title="Close">✕</button>
+            </div>
+        </div>
+        <div class="form-container">
+            <h2 class="form-title">How long have you had trouble sleeping?</h2>
+            <div class="choice-cards">
+                <div class="choice-card" onclick="selectInsomniaDuration('acute')">
+                    <div class="choice-icon">📅</div>
+                    <div class="choice-content">
+                        <h3>Less than 3 months</h3>
+                        <p>Recent or short-term difficulty</p>
+                    </div>
+                </div>
+                <div class="choice-card" onclick="selectInsomniaDuration('chronic')">
+                    <div class="choice-icon">📆</div>
+                    <div class="choice-content">
+                        <h3>More than 3 months</h3>
+                        <p>Ongoing or persistent difficulty</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- OSA Red Flags Screen -->
+    <div id="osaFlagsScreen" class="screen form-screen">
+        <div class="header">
+            <div class="logo">🛏️ SleepNav</div>
+            <div class="header-actions">
+                <button class="btn-icon" onclick="restartApp()" title="Start Over">↺</button>
+                <button class="btn-icon" onclick="closeApp()" title="Close">✕</button>
+            </div>
+        </div>
+        <div class="form-container">
+            <h2 class="form-title">Please answer these questions</h2>
+            
+            <div class="question-group">
+                <div class="question-text">Has anyone seen you <strong>stop breathing</strong> while asleep?</div>
+                <div class="toggle-group">
+                    <button class="toggle-btn yes" onclick="toggleFlag('apnea', true)">Yes</button>
+                    <button class="toggle-btn no" onclick="toggleFlag('apnea', false)">No</button>
+                </div>
+            </div>
+
+            <div class="question-group">
+                <div class="question-text">Do you have <strong>high blood pressure</strong>?</div>
+                <div class="toggle-group">
+                    <button class="toggle-btn yes" onclick="toggleFlag('bp', true)">Yes</button>
+                    <button class="toggle-btn no" onclick="toggleFlag('bp', false)">No</button>
+                </div>
+            </div>
+
+            <div class="question-group">
+                <div class="question-text">Do you <strong>snore loudly</strong>?</div>
+                <div class="toggle-group">
+                    <button class="toggle-btn yes" onclick="toggleFlag('snore', true)">Yes</button>
+                    <button class="toggle-btn no" onclick="toggleFlag('snore', false)">No</button>
+                </div>
+            </div>
+
+            <div class="question-group">
+                <div class="question-text">Is your <strong>collar size over 17 inches</strong> (43cm)?</div>
+                <div class="toggle-group">
+                    <button class="toggle-btn yes" onclick="toggleFlag('neck', true)">Yes</button>
+                    <button class="toggle-btn no" onclick="toggleFlag('neck', false)">No</button>
+                </div>
+            </div>
+
+            <button class="btn-primary" onclick="submitOsaFlags()">NEXT</button>
+        </div>
+    </div>
+
+    <!-- Epworth Sleepiness Scale Screen -->
+    <div id="epworthScreen" class="screen form-screen">
+        <div class="header">
+            <div class="logo">🛏️ SleepNav</div>
+            <div class="header-actions">
+                <button class="btn-icon" onclick="restartApp()" title="Start Over">↺</button>
+                <button class="btn-icon" onclick="closeApp()" title="Close">✕</button>
+            </div>
+        </div>
+        <div class="score-display">Sleepiness Score: <span id="epworthScore">0</span>/24</div>
+        <div class="form-container">
+            <h2 class="form-title">How likely are you to doze off in these situations?</h2>
+            
+            <div class="epworth-question">
+                <h4>1. Sitting and reading</h4>
+                <div class="epworth-options">
+                    <button class="epworth-option" onclick="selectEpworth(0, 0)">0 - Never doze</button>
+                    <button class="epworth-option" onclick="selectEpworth(0, 1)">1 - Slight chance</button>
+                    <button class="epworth-option" onclick="selectEpworth(0, 2)">2 - Moderate chance</button>
+                    <button class="epworth-option" onclick="selectEpworth(0, 3)">3 - High chance</button>
+                </div>
+            </div>
+
+            <div class="epworth-question">
+                <h4>2. Watching TV</h4>
+                <div class="epworth-options">
+                    <button class="epworth-option" onclick="selectEpworth(1, 0)">0 - Never doze</button>
+                    <button class="epworth-option" onclick="selectEpworth(1, 1)">1 - Slight chance</button>
+                    <button class="epworth-option" onclick="selectEpworth(1, 2)">2 - Moderate chance</button>
+                    <button class="epworth-option" onclick="selectEpworth(1, 3)">3 - High chance</button>
+                </div>
+            </div>
+
+            <div class="epworth-question">
+                <h4>3. Sitting inactive in a public place (e.g., theater or meeting)</h4>
+                <div class="epworth-options">
+                    <button class="epworth-option" onclick="selectEpworth(2, 0)">0 - Never doze</button>
+                    <button class="epworth-option" onclick="selectEpworth(2, 1)">1 - Slight chance</button>
+                    <button class="epworth-option" onclick="selectEpworth(2, 2)">2 - Moderate chance</button>
+                    <button class="epworth-option" onclick="selectEpworth(2, 3)">3 - High chance</button>
+                </div>
+            </div>
+
+            <div class="epworth-question">
+                <h4>4. As a passenger in a car for an hour without a break</h4>
+                <div class="epworth-options">
+                    <button class="epworth-option" onclick="selectEpworth(3, 0)">0 - Never doze</button>
+                    <button class="epworth-option" onclick="selectEpworth(3, 1)">1 - Slight chance</button>
+                    <button class="epworth-option" onclick="selectEpworth(3, 2)">2 - Moderate chance</button>
+                    <button class="epworth-option" onclick="selectEpworth(3, 3)">3 - High chance</button>
+                </div>
+            </div>
+
+            <div class="epworth-question">
+                <h4>5. Lying down to rest in the afternoon</h4>
+                <div class="epworth-options">
+                    <button class="epworth-option" onclick="selectEpworth(4, 0)">0 - Never doze</button>
+                    <button class="epworth-option" onclick="selectEpworth(4, 1)">1 - Slight chance</button>
+                    <button class="epworth-option" onclick="selectEpworth(4, 2)">2 - Moderate chance</button>
+                    <button class="epworth-option" onclick="selectEpworth(4, 3)">3 - High chance</button>
+                </div>
+            </div>
+
+            <div class="epworth-question">
+                <h4>6. Sitting and talking to someone</h4>
+                <div class="epworth-options">
+                    <button class="epworth-option" onclick="selectEpworth(5, 0)">0 - Never doze</button>
+                    <button class="epworth-option" onclick="selectEpworth(5, 1)">1 - Slight chance</button>
+                    <button class="epworth-option" onclick="selectEpworth(5, 2)">2 - Moderate chance</button>
+                    <button class="epworth-option" onclick="selectEpworth(5, 3)">3 - High chance</button>
+                </div>
+            </div>
+
+            <div class="epworth-question">
+                <h4>7. Sitting quietly after lunch (without alcohol)</h4>
+                <div class="epworth-options">
+                    <button class="epworth-option" onclick="selectEpworth(6, 0)">0 - Never doze</button>
+                    <button class="epworth-option" onclick="selectEpworth(6, 1)">1 - Slight chance</button>
+                    <button class="epworth-option" onclick="selectEpworth(6, 2)">2 - Moderate chance</button>
+                    <button class="epworth-option" onclick="selectEpworth(6, 3)">3 - High chance</button>
+                </div>
+            </div>
+
+            <div class="epworth-question">
+                <h4>8. In a car, while stopped for a few minutes in traffic</h4>
+                <div class="epworth-options">
+                    <button class="epworth-option" onclick="selectEpworth(7, 0)">0 - Never doze</button>
+                    <button class="epworth-option" onclick="selectEpworth(7, 1)">1 - Slight chance</button>
+                    <button class="epworth-option" onclick="selectEpworth(7, 2)">2 - Moderate chance</button>
+                    <button class="epworth-option" onclick="selectEpworth(7, 3)">3 - High chance</button>
+                </div>
+            </div>
+
+            <button class="btn-primary" onclick="submitEpworth()">SEE RESULTS</button>
+        </div>
+    </div>
+
+    <!-- Results Screen -->
+    <div id="resultsScreen" class="screen">
+        <div class="results-container">
+            <div class="result-icon" id="resultIcon">✅</div>
+            <h2 class="result-title" id="resultTitle">Short-term relief available.</h2>
+            <p class="result-message" id="resultMessage">Please speak to the counter staff for product advice.</p>
+            
+            <div class="handover-code" id="handoverCode">#GREEN-1-INSOMNIA</div>
+            
+            <div class="clinical-summary">
+                <h3>Clinical Summary</h3>
+                <div class="summary-row">
+                    <span class="summary-label">Age</span>
+                    <span class="summary-value" id="summaryAge">-</span>
+                </div>
+                <div class="summary-row">
+                    <span class="summary-label">BMI</span>
+                    <span class="summary-value" id="summaryBmi">-</span>
+                </div>
+                <div class="summary-row">
+                    <span class="summary-label">Elderly Patient (≥65)</span>
+                    <span class="summary-value" id="summaryElderly">-</span>
+                </div>
+                <div class="summary-row" id="sleepinessRow" style="display: none;">
+                    <span class="summary-label">Sleepiness Score</span>
+                    <span class="summary-value" id="summarySleepiness">-</span>
+                </div>
+                <div class="summary-row">
+                    <span class="summary-label">Recommended Action</span>
+                    <span class="summary-value" id="summaryAction">-</span>
+                </div>
+                <p class="disclaimer">For licensed pharmacy use only. © 2026 Snorer.com Ltd.</p>
+            </div>
+
+            <button class="btn-restart" onclick="restartApp()">START OVER</button>
+        </div>
+    </div>
+
+    <script>
+        // Application State
+        const appState = {
+            age: null,
+            gender: null,
+            heightCm: null,
+            weightKg: null,
+            bmi: null,
+            unit: 'metric',
+            complaint: null,
+            insomniaDuration: null,
+            osaFlags: {
+                apnea: null,
+                bp: null,
+                snore: null,
+                neck: null
+            },
+            epworthScores: [null, null, null, null, null, null, null, null],
+            epworthTotal: 0,
+            resultCode: null
+        };
+
+        let inactivityTimer = null;
+
+        // Inactivity timeout
+        function resetInactivityTimer() {
+            clearTimeout(inactivityTimer);
+            inactivityTimer = setTimeout(() => {
+                restartApp();
+            }, 300000); // 5 minutes
+        }
+
+        document.addEventListener('click', resetInactivityTimer);
+        document.addEventListener('keypress', resetInactivityTimer);
+        document.addEventListener('touchstart', resetInactivityTimer);
+
+        // Screen Navigation
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(screen => {
+                screen.classList.remove('active');
+            });
+            document.getElementById(screenId).classList.add('active');
+            window.scrollTo(0, 0);
+            resetInactivityTimer();
+        }
+
+        function startAssessment() {
+            showScreen('demographicsScreen');
+        }
+
+        function restartApp() {
+            Object.keys(appState).forEach(key => {
+                if (key === 'unit') {
+                    appState[key] = 'metric';
+                } else if (key === 'osaFlags') {
+                    appState[key] = { apnea: null, bp: null, snore: null, neck: null };
+                } else if (key === 'epworthScores') {
+                    appState[key] = [null, null, null, null, null, null, null, null];
+                } else {
+                    appState[key] = null;
+                }
+            });
+            appState.epworthTotal = 0;
+            
+            // Reset form inputs
+            document.getElementById('age').value = '';
+            document.getElementById('gender').value = '';
+            document.getElementById('heightCm').value = '';
+            document.getElementById('weightKg').value = '';
+            document.getElementById('heightFt').value = '';
+            document.getElementById('heightIn').value = '';
+            document.getElementById('weightSt').value = '';
+            document.getElementById('weightLbs').value = '';
+            
+            setUnit('metric');
+            showScreen('startScreen');
+        }
+
+        function closeApp() {
+            if (confirm('Are you sure you want to exit?')) {
+                restartApp();
+            }
+        }
+
+        // Demographics
+        function setUnit(unit) {
+            appState.unit = unit;
+            document.querySelectorAll('.unit-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            if (unit === 'metric') {
+                document.getElementById('metricInputs').style.display = 'block';
+                document.getElementById('imperialInputs').style.display = 'none';
+            } else {
+                document.getElementById('metricInputs').style.display = 'none';
+                document.getElementById('imperialInputs').style.display = 'block';
+            }
+        }
+
+        function calculateBMI(heightCm, weightKg) {
+            const heightM = heightCm / 100;
+            return (weightKg / (heightM * heightM)).toFixed(1);
+        }
+
+        function submitDemographics() {
+            const age = parseInt(document.getElementById('age').value);
+            const gender = document.getElementById('gender').value;
+            
+            if (!age || age < 18 || age > 120) {
+                alert('Please enter a valid age (18-120)');
+                return;
+            }
+            
+            if (!gender) {
+                alert('Please select your gender');
+                return;
+            }
+
+            let heightCm, weightKg;
+
+            if (appState.unit === 'metric') {
+                heightCm = parseFloat(document.getElementById('heightCm').value);
+                weightKg = parseFloat(document.getElementById('weightKg').value);
+            } else {
+                const heightFt = parseFloat(document.getElementById('heightFt').value);
+                const heightIn = parseFloat(document.getElementById('heightIn').value);
+                const weightSt = parseFloat(document.getElementById('weightSt').value);
+                const weightLbs = parseFloat(document.getElementById('weightLbs').value);
+                
+                if (!heightFt || !heightIn === undefined || !weightSt || weightLbs === undefined) {
+                    alert('Please enter all height and weight values');
+                    return;
+                }
+                
+                heightCm = ((heightFt * 12) + heightIn) * 2.54;
+                weightKg = (weightSt * 14 + weightLbs) * 0.453592;
+            }
+
+            if (!heightCm || heightCm < 100 || heightCm > 250) {
+                alert('Please enter a valid height');
+                return;
+            }
+
+            if (!weightKg || weightKg < 30 || weightKg > 300) {
+                alert('Please enter a valid weight');
+                return;
+            }
+
+            appState.age = age;
+            appState.gender = gender;
+            appState.heightCm = heightCm;
+            appState.weightKg = weightKg;
+            appState.bmi = calculateBMI(heightCm, weightKg);
+
+            showScreen('triageScreen');
+        }
+
+        // Triage
+        function selectComplaint(complaint) {
+            appState.complaint = complaint;
+            
+            if (complaint === 'insomnia') {
+                showScreen('insomniaDurationScreen');
+            } else if (complaint === 'osa') {
+                showScreen('osaFlagsScreen');
+            } else if (complaint === 'other') {
+                calculateResult('AMBER-3-OTHER');
+            }
+        }
+
+        // Insomnia Pathway
+        function selectInsomniaDuration(duration) {
+            appState.insomniaDuration = duration;
+            
+            if (duration === 'chronic') {
+                calculateResult('RED-1-INSOMNIA');
+            } else {
+                // Acute insomnia
+                if (appState.age >= 65) {
+                    calculateResult('AMBER-1-INSOMNIA');
+                } else {
+                    calculateResult('GREEN-1-INSOMNIA');
+                }
+            }
+        }
+
+        // OSA Pathway - Red Flags
+        function toggleFlag(flag, value) {
+            appState.osaFlags[flag] = value;
+            
+            // Update UI
+            const buttons = event.target.parentElement.querySelectorAll('.toggle-btn');
+            buttons.forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+        }
+
+        function submitOsaFlags() {
+            // Check if all flags are answered
+            if (Object.values(appState.osaFlags).some(val => val === null)) {
+                alert('Please answer all questions');
+                return;
+            }
+            
+            showScreen('epworthScreen');
+        }
+
+        // Epworth Sleepiness Scale
+        function selectEpworth(questionIndex, score) {
+            appState.epworthScores[questionIndex] = score;
+            
+            // Update UI
+            const question = event.target.parentElement;
+            question.querySelectorAll('.epworth-option').forEach(opt => opt.classList.remove('selected'));
+            event.target.classList.add('selected');
+            
+            // Calculate total
+            appState.epworthTotal = appState.epworthScores.reduce((sum, val) => sum + (val || 0), 0);
+            document.getElementById('epworthScore').textContent = appState.epworthTotal;
+        }
+
+        function submitEpworth() {
+            // Check if all questions are answered
+            if (appState.epworthScores.some(val => val === null)) {
+                alert('Please answer all 8 questions');
+                return;
+            }
+            
+            // Calculate OSA risk
+            const { apnea, bp, snore, neck } = appState.osaFlags;
+            const pESS = appState.epworthTotal;
+            const bmi = parseFloat(appState.bmi);
+            
+            let code = 'GREEN-2-OSA';
+            
+            // High risk conditions
+            if (apnea === true) {
+                code = 'RED-2-OSA';
+            } else if (pESS > 10) {
+                code = 'RED-2-OSA';
+            } else if (snore === true && bp === true) {
+                code = 'RED-2-OSA';
+            } else if (snore === true && bmi > 30) {
+                code = 'RED-2-OSA';
+            } else if (neck === true && pESS > 10) {
+                code = 'RED-2-OSA';
+            } else if (snore === true) {
+                code = 'AMBER-2-OSA';
+            }
+            
+            calculateResult(code);
+        }
+
+        // Results
+        function calculateResult(code) {
+            appState.resultCode = code;
+            
+            const codeMapping = {
+                'RED-1-INSOMNIA': {
+                    icon: '🛑',
+                    title: 'Medication may not be the right answer.',
+                    message: 'Based on your profile, simple sleeping pills may be ineffective or unsafe. Please show the code below to the Pharmacist for a clinical assessment.',
+                    action: 'Refer to CBT-i (Cognitive Behavioral Therapy)',
+                    color: 'red'
+                },
+                'RED-2-OSA': {
+                    icon: '🛑',
+                    title: 'Medication may not be the right answer.',
+                    message: 'Based on your profile, simple sleeping pills may be ineffective or unsafe. Please show the code below to the Pharmacist for a clinical assessment.',
+                    action: 'Recommend HSAT (Home Sleep Test)',
+                    color: 'red'
+                },
+                'AMBER-1-INSOMNIA': {
+                    icon: '🛑',
+                    title: 'Medication may not be the right answer.',
+                    message: 'Based on your profile, simple sleeping pills may be ineffective or unsafe. Please show the code below to the Pharmacist for a clinical assessment.',
+                    action: 'Safety Warning - Do not sell Diphenhydramine',
+                    color: 'amber'
+                },
+                'AMBER-2-OSA': {
+                    icon: '🛑',
+                    title: 'Medication may not be the right answer.',
+                    message: 'Based on your profile, simple sleeping pills may be ineffective or unsafe. Please show the code below to the Pharmacist for a clinical assessment.',
+                    action: 'Dentist Referral for Snoring Assessment',
+                    color: 'amber'
+                },
+                'AMBER-3-OTHER': {
+                    icon: '🛑',
+                    title: 'Medication may not be the right answer.',
+                    message: 'Based on your profile, simple sleeping pills may be ineffective or unsafe. Please show the code below to the Pharmacist for a clinical assessment.',
+                    action: 'GP Referral Required',
+                    color: 'amber'
+                },
+                'GREEN-1-INSOMNIA': {
+                    icon: '✅',
+                    title: 'Short-term relief available.',
+                    message: 'Please speak to the counter staff for product advice.',
+                    action: 'Safe Supply - Short-term Medication Available',
+                    color: 'green'
+                },
+                'GREEN-2-OSA': {
+                    icon: '✅',
+                    title: 'Short-term relief available.',
+                    message: 'Please speak to the counter staff for product advice.',
+                    action: 'Reassurance - No Immediate Concerns',
+                    color: 'green'
+                }
+            };
+            
+            const result = codeMapping[code];
+            
+            // Update UI
+            document.getElementById('resultIcon').textContent = result.icon;
+            document.getElementById('resultTitle').textContent = result.title;
+            document.getElementById('resultMessage').textContent = result.message;
+            
+            const handoverCodeEl = document.getElementById('handoverCode');
+            handoverCodeEl.textContent = '#' + code;
+            handoverCodeEl.className = 'handover-code ' + result.color;
+            
+            // Clinical Summary
+            document.getElementById('summaryAge').textContent = appState.age;
+            document.getElementById('summaryBmi').textContent = appState.bmi;
+            document.getElementById('summaryElderly').textContent = appState.age >= 65 ? 'Yes' : 'No';
+            document.getElementById('summaryAction').textContent = result.action;
+            
+            // Show sleepiness score if OSA pathway
+            if (code.includes('OSA')) {
+                document.getElementById('sleepinessRow').style.display = 'flex';
+                document.getElementById('summarySleepiness').textContent = appState.epworthTotal + '/24';
+            } else {
+                document.getElementById('sleepinessRow').style.display = 'none';
+            }
+            
+            showScreen('resultsScreen');
+        }
+
+        // Initialize
+        resetInactivityTimer();
+
+        // Register Service Worker for PWA
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/service-worker.js')
+                    .then(registration => {
+                        console.log('ServiceWorker registration successful');
+                    })
+                    .catch(err => {
+                        console.log('ServiceWorker registration failed: ', err);
+                    });
+            });
+        }
+    </script>
+</body>
+</html>
