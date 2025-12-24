@@ -212,6 +212,148 @@
             gap: 1rem;
         }
 
+        /* Age Bracket Selection */
+        .age-bracket-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .age-bracket-btn {
+            width: 100%;
+            padding: 1.25rem;
+            border: 2px solid var(--border-gray);
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: 500;
+            transition: all 0.3s;
+            text-align: center;
+            min-height: 60px;
+        }
+
+        .age-bracket-btn:hover {
+            border-color: var(--green);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .age-bracket-btn.selected {
+            background: var(--green);
+            color: white;
+            border-color: var(--green);
+        }
+
+        /* Exit Screen */
+        .exit-screen {
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 3rem 2rem;
+            text-align: center;
+        }
+
+        .exit-icon {
+            font-size: 4rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .exit-title {
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+            color: var(--navy);
+        }
+
+        .exit-message {
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+            color: var(--text-gray);
+            line-height: 1.6;
+        }
+
+        /* Sleepiness Screening */
+        .sleepiness-question {
+            margin-bottom: 2rem;
+        }
+
+        .sleepiness-question-text {
+            font-size: 1.3rem;
+            margin-bottom: 1.5rem;
+            color: var(--navy);
+            font-weight: 500;
+            text-align: center;
+        }
+
+        .yes-no-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .yes-no-btn {
+            flex: 1;
+            padding: 1.25rem;
+            border: 2px solid var(--border-gray);
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: 600;
+            transition: all 0.3s;
+            min-height: 60px;
+        }
+
+        .yes-no-btn:hover {
+            border-color: var(--green);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .yes-no-btn.selected {
+            background: var(--green);
+            color: white;
+            border-color: var(--green);
+        }
+
+        .frequency-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .frequency-btn {
+            width: 100%;
+            padding: 1.25rem;
+            border: 2px solid var(--border-gray);
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.05rem;
+            font-weight: 500;
+            transition: all 0.3s;
+            text-align: center;
+            min-height: 60px;
+        }
+
+        .frequency-btn:hover {
+            border-color: var(--green);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .frequency-btn.selected {
+            background: var(--green);
+            color: white;
+            border-color: var(--green);
+        }
+
+        .frequency-question {
+            display: none;
+            margin-top: 2rem;
+        }
+
+        .frequency-question.show {
+            display: block;
+        }
+
         .btn-primary {
             width: 100%;
             background: var(--green);
@@ -531,6 +673,22 @@
         <p class="footer-text">© 2026 Snorer.com Ltd. SleepNav® is a registered trademark (UK00003706156).</p>
     </div>
 
+    <!-- Exit Screen (Under 18) -->
+    <div id="exitScreen" class="screen form-screen">
+        <div class="header">
+            <div class="logo">🛏️ SleepNav</div>
+            <div class="header-actions">
+                <button class="btn-icon" onclick="closeApp()" title="Close">✕</button>
+            </div>
+        </div>
+        <div class="exit-screen">
+            <div class="exit-icon">ℹ️</div>
+            <h2 class="exit-title">This service is for adults only</h2>
+            <p class="exit-message">Please speak to the pharmacist for advice.</p>
+            <button class="btn-primary" onclick="restartApp()">CLOSE</button>
+        </div>
+    </div>
+
     <!-- Demographics Screen -->
     <div id="demographicsScreen" class="screen form-screen">
         <div class="header">
@@ -544,8 +702,12 @@
             <h2 class="form-title">First, a few quick details</h2>
             
             <div class="form-group">
-                <label for="age">Age</label>
-                <input type="number" id="age" placeholder="Enter your age" min="18" max="120">
+                <label>Which age group are you in?</label>
+                <div class="age-bracket-buttons">
+                    <button class="age-bracket-btn" onclick="selectAgeBracket('under-18')">Under 18</button>
+                    <button class="age-bracket-btn" onclick="selectAgeBracket('18-64')">18-64</button>
+                    <button class="age-bracket-btn" onclick="selectAgeBracket('65-plus')">65 or older</button>
+                </div>
             </div>
 
             <div class="form-group">
@@ -718,8 +880,8 @@
         </div>
     </div>
 
-    <!-- Epworth Sleepiness Scale Screen -->
-    <div id="epworthScreen" class="screen form-screen">
+    <!-- Sleepiness Screening Screen -->
+    <div id="sleepinessScreen" class="screen form-screen">
         <div class="header">
             <div class="logo">🛏️ SleepNav</div>
             <div class="header-actions">
@@ -727,91 +889,27 @@
                 <button class="btn-icon" onclick="closeApp()" title="Close">✕</button>
             </div>
         </div>
-        <div class="score-display">Sleepiness Score: <span id="epworthScore">0</span>/24</div>
         <div class="form-container">
-            <h2 class="form-title">How likely are you to doze off in these situations?</h2>
+            <h2 class="form-title">Sleepiness Assessment</h2>
             
-            <div class="epworth-question">
-                <h4>1. Sitting and reading</h4>
-                <div class="epworth-options">
-                    <button class="epworth-option" onclick="selectEpworth(0, 0)">0 - Never doze</button>
-                    <button class="epworth-option" onclick="selectEpworth(0, 1)">1 - Slight chance</button>
-                    <button class="epworth-option" onclick="selectEpworth(0, 2)">2 - Moderate chance</button>
-                    <button class="epworth-option" onclick="selectEpworth(0, 3)">3 - High chance</button>
+            <div class="sleepiness-question">
+                <p class="sleepiness-question-text">Do you struggle to stay alert during the day?</p>
+                <div class="yes-no-buttons">
+                    <button class="yes-no-btn" onclick="answerAlertness(false)">NO</button>
+                    <button class="yes-no-btn" onclick="answerAlertness(true)">YES</button>
                 </div>
             </div>
 
-            <div class="epworth-question">
-                <h4>2. Watching TV</h4>
-                <div class="epworth-options">
-                    <button class="epworth-option" onclick="selectEpworth(1, 0)">0 - Never doze</button>
-                    <button class="epworth-option" onclick="selectEpworth(1, 1)">1 - Slight chance</button>
-                    <button class="epworth-option" onclick="selectEpworth(1, 2)">2 - Moderate chance</button>
-                    <button class="epworth-option" onclick="selectEpworth(1, 3)">3 - High chance</button>
+            <div id="frequencyQuestion" class="frequency-question">
+                <p class="sleepiness-question-text">How often does this happen?</p>
+                <div class="frequency-buttons">
+                    <button class="frequency-btn" onclick="selectFrequency('rarely')">Rarely</button>
+                    <button class="frequency-btn" onclick="selectFrequency('several-days')">Several days a week</button>
+                    <button class="frequency-btn" onclick="selectFrequency('nearly-daily')">Nearly every day</button>
                 </div>
             </div>
 
-            <div class="epworth-question">
-                <h4>3. Sitting inactive in a public place (e.g., theater or meeting)</h4>
-                <div class="epworth-options">
-                    <button class="epworth-option" onclick="selectEpworth(2, 0)">0 - Never doze</button>
-                    <button class="epworth-option" onclick="selectEpworth(2, 1)">1 - Slight chance</button>
-                    <button class="epworth-option" onclick="selectEpworth(2, 2)">2 - Moderate chance</button>
-                    <button class="epworth-option" onclick="selectEpworth(2, 3)">3 - High chance</button>
-                </div>
-            </div>
-
-            <div class="epworth-question">
-                <h4>4. As a passenger in a car for an hour without a break</h4>
-                <div class="epworth-options">
-                    <button class="epworth-option" onclick="selectEpworth(3, 0)">0 - Never doze</button>
-                    <button class="epworth-option" onclick="selectEpworth(3, 1)">1 - Slight chance</button>
-                    <button class="epworth-option" onclick="selectEpworth(3, 2)">2 - Moderate chance</button>
-                    <button class="epworth-option" onclick="selectEpworth(3, 3)">3 - High chance</button>
-                </div>
-            </div>
-
-            <div class="epworth-question">
-                <h4>5. Lying down to rest in the afternoon</h4>
-                <div class="epworth-options">
-                    <button class="epworth-option" onclick="selectEpworth(4, 0)">0 - Never doze</button>
-                    <button class="epworth-option" onclick="selectEpworth(4, 1)">1 - Slight chance</button>
-                    <button class="epworth-option" onclick="selectEpworth(4, 2)">2 - Moderate chance</button>
-                    <button class="epworth-option" onclick="selectEpworth(4, 3)">3 - High chance</button>
-                </div>
-            </div>
-
-            <div class="epworth-question">
-                <h4>6. Sitting and talking to someone</h4>
-                <div class="epworth-options">
-                    <button class="epworth-option" onclick="selectEpworth(5, 0)">0 - Never doze</button>
-                    <button class="epworth-option" onclick="selectEpworth(5, 1)">1 - Slight chance</button>
-                    <button class="epworth-option" onclick="selectEpworth(5, 2)">2 - Moderate chance</button>
-                    <button class="epworth-option" onclick="selectEpworth(5, 3)">3 - High chance</button>
-                </div>
-            </div>
-
-            <div class="epworth-question">
-                <h4>7. Sitting quietly after lunch (without alcohol)</h4>
-                <div class="epworth-options">
-                    <button class="epworth-option" onclick="selectEpworth(6, 0)">0 - Never doze</button>
-                    <button class="epworth-option" onclick="selectEpworth(6, 1)">1 - Slight chance</button>
-                    <button class="epworth-option" onclick="selectEpworth(6, 2)">2 - Moderate chance</button>
-                    <button class="epworth-option" onclick="selectEpworth(6, 3)">3 - High chance</button>
-                </div>
-            </div>
-
-            <div class="epworth-question">
-                <h4>8. In a car, while stopped for a few minutes in traffic</h4>
-                <div class="epworth-options">
-                    <button class="epworth-option" onclick="selectEpworth(7, 0)">0 - Never doze</button>
-                    <button class="epworth-option" onclick="selectEpworth(7, 1)">1 - Slight chance</button>
-                    <button class="epworth-option" onclick="selectEpworth(7, 2)">2 - Moderate chance</button>
-                    <button class="epworth-option" onclick="selectEpworth(7, 3)">3 - High chance</button>
-                </div>
-            </div>
-
-            <button class="btn-primary" onclick="submitEpworth()">SEE RESULTS</button>
+            <button class="btn-primary" id="sleepinessSubmitBtn" onclick="submitSleepiness()" style="margin-top: 2rem;">COMPLETE ASSESSMENT</button>
         </div>
     </div>
 
@@ -827,7 +925,7 @@
             <div class="clinical-summary">
                 <h3>Clinical Summary</h3>
                 <div class="summary-row">
-                    <span class="summary-label">Age</span>
+                    <span class="summary-label">Age Group</span>
                     <span class="summary-value" id="summaryAge">-</span>
                 </div>
                 <div class="summary-row">
@@ -838,9 +936,13 @@
                     <span class="summary-label">Elderly Patient (≥65)</span>
                     <span class="summary-value" id="summaryElderly">-</span>
                 </div>
-                <div class="summary-row" id="sleepinessRow" style="display: none;">
-                    <span class="summary-label">Sleepiness Score</span>
-                    <span class="summary-value" id="summarySleepiness">-</span>
+                <div class="summary-row" id="alertnessRow" style="display: none;">
+                    <span class="summary-label">Daytime Alertness</span>
+                    <span class="summary-value" id="summaryAlertness">-</span>
+                </div>
+                <div class="summary-row" id="frequencyRow" style="display: none;">
+                    <span class="summary-label">Frequency</span>
+                    <span class="summary-value" id="summaryFrequency">-</span>
                 </div>
                 <div class="summary-row">
                     <span class="summary-label">Recommended Action</span>
@@ -856,7 +958,8 @@
     <script>
         // Application State
         const appState = {
-            age: null,
+            ageBracket: null,
+            isElderly: false,
             gender: null,
             heightCm: null,
             weightKg: null,
@@ -870,8 +973,8 @@
                 snore: null,
                 neck: null
             },
-            epworthScores: [null, null, null, null, null, null, null, null],
-            epworthTotal: 0,
+            hasEds: null,
+            edsFrequency: null,
             resultCode: null
         };
 
@@ -907,18 +1010,17 @@
             Object.keys(appState).forEach(key => {
                 if (key === 'unit') {
                     appState[key] = 'metric';
+                } else if (key === 'isElderly') {
+                    appState[key] = false;
                 } else if (key === 'osaFlags') {
                     appState[key] = { apnea: null, bp: null, snore: null, neck: null };
-                } else if (key === 'epworthScores') {
-                    appState[key] = [null, null, null, null, null, null, null, null];
                 } else {
                     appState[key] = null;
                 }
             });
-            appState.epworthTotal = 0;
             
             // Reset form inputs
-            document.getElementById('age').value = '';
+            document.querySelectorAll('.age-bracket-btn').forEach(btn => btn.classList.remove('selected'));
             document.getElementById('gender').value = '';
             document.getElementById('heightCm').value = '';
             document.getElementById('weightKg').value = '';
@@ -927,6 +1029,11 @@
             document.getElementById('weightSt').value = '';
             document.getElementById('weightLbs').value = '';
             
+            // Reset sleepiness buttons
+            document.querySelectorAll('.yes-no-btn').forEach(btn => btn.classList.remove('selected'));
+            document.querySelectorAll('.frequency-btn').forEach(btn => btn.classList.remove('selected'));
+            document.getElementById('frequencyQuestion').classList.remove('show');
+            
             setUnit('metric');
             showScreen('startScreen');
         }
@@ -934,6 +1041,26 @@
         function closeApp() {
             if (confirm('Are you sure you want to exit?')) {
                 restartApp();
+            }
+        }
+
+        // Age Bracket Selection
+        function selectAgeBracket(bracket) {
+            appState.ageBracket = bracket;
+            
+            // Update UI
+            document.querySelectorAll('.age-bracket-btn').forEach(btn => btn.classList.remove('selected'));
+            event.target.classList.add('selected');
+            
+            if (bracket === 'under-18') {
+                // Show exit screen for under-18
+                showScreen('exitScreen');
+            } else if (bracket === '18-64') {
+                appState.isElderly = false;
+                // Continue with form
+            } else if (bracket === '65-plus') {
+                appState.isElderly = true;
+                // Continue with form
             }
         }
 
@@ -958,13 +1085,12 @@
         }
 
         function submitDemographics() {
-            const age = parseInt(document.getElementById('age').value);
-            const gender = document.getElementById('gender').value;
-            
-            if (!age || age < 18 || age > 120) {
-                alert('Please enter a valid age (18-120)');
+            if (!appState.ageBracket) {
+                alert('Please select your age group');
                 return;
             }
+            
+            const gender = document.getElementById('gender').value;
             
             if (!gender) {
                 alert('Please select your gender');
@@ -982,7 +1108,7 @@
                 const weightSt = parseFloat(document.getElementById('weightSt').value);
                 const weightLbs = parseFloat(document.getElementById('weightLbs').value);
                 
-                if (!heightFt || !heightIn === undefined || !weightSt || weightLbs === undefined) {
+                if (!heightFt || heightIn === undefined || !weightSt || weightLbs === undefined) {
                     alert('Please enter all height and weight values');
                     return;
                 }
@@ -1001,7 +1127,6 @@
                 return;
             }
 
-            appState.age = age;
             appState.gender = gender;
             appState.heightCm = heightCm;
             appState.weightKg = weightKg;
@@ -1031,7 +1156,7 @@
                 calculateResult('RED-1-INSOMNIA');
             } else {
                 // Acute insomnia
-                if (appState.age >= 65) {
+                if (appState.isElderly) {
                     calculateResult('AMBER-1-INSOMNIA');
                 } else {
                     calculateResult('GREEN-1-INSOMNIA');
@@ -1056,49 +1181,83 @@
                 return;
             }
             
-            showScreen('epworthScreen');
+            showScreen('sleepinessScreen');
         }
 
-        // Epworth Sleepiness Scale
-        function selectEpworth(questionIndex, score) {
-            appState.epworthScores[questionIndex] = score;
+        // Sleepiness Assessment
+        function answerAlertness(response) {
+            appState.hasEds = response;
             
             // Update UI
-            const question = event.target.parentElement;
-            question.querySelectorAll('.epworth-option').forEach(opt => opt.classList.remove('selected'));
+            document.querySelectorAll('.yes-no-btn').forEach(btn => btn.classList.remove('selected'));
             event.target.classList.add('selected');
             
-            // Calculate total
-            appState.epworthTotal = appState.epworthScores.reduce((sum, val) => sum + (val || 0), 0);
-            document.getElementById('epworthScore').textContent = appState.epworthTotal;
+            if (response === false) {
+                // Hide frequency question
+                document.getElementById('frequencyQuestion').classList.remove('show');
+                appState.edsFrequency = null;
+            } else {
+                // Show frequency question
+                document.getElementById('frequencyQuestion').classList.add('show');
+            }
         }
 
-        function submitEpworth() {
-            // Check if all questions are answered
-            if (appState.epworthScores.some(val => val === null)) {
-                alert('Please answer all 8 questions');
+        function selectFrequency(frequency) {
+            appState.edsFrequency = frequency;
+            
+            // Update UI
+            document.querySelectorAll('.frequency-btn').forEach(btn => btn.classList.remove('selected'));
+            event.target.classList.add('selected');
+        }
+
+        function submitSleepiness() {
+            // Check if alertness question is answered
+            if (appState.hasEds === null) {
+                alert('Please answer the alertness question');
                 return;
             }
             
-            // Calculate OSA risk
+            // If YES to alertness, check frequency is answered
+            if (appState.hasEds === true && !appState.edsFrequency) {
+                alert('Please select how often this happens');
+                return;
+            }
+            
+            // Calculate OSA risk using new logic
             const { apnea, bp, snore, neck } = appState.osaFlags;
-            const pESS = appState.epworthTotal;
             const bmi = parseFloat(appState.bmi);
             
             let code = 'GREEN-2-OSA';
             
-            // High risk conditions
+            // Priority 1: Witnessed apnea (immediate high risk)
             if (apnea === true) {
                 code = 'RED-2-OSA';
-            } else if (pESS > 10) {
+            }
+            // Priority 2: Severe sleepiness (standalone red flag)
+            else if (appState.hasEds && appState.edsFrequency === 'nearly-daily') {
                 code = 'RED-2-OSA';
-            } else if (snore === true && bp === true) {
+            }
+            // Priority 3: Anatomical risk factors
+            else if (snore === true && bp === true) {
                 code = 'RED-2-OSA';
-            } else if (snore === true && bmi > 30) {
+            }
+            else if (snore === true && bmi > 30) {
                 code = 'RED-2-OSA';
-            } else if (neck === true && pESS > 10) {
-                code = 'RED-2-OSA';
-            } else if (snore === true) {
+            }
+            // Priority 4: Combined moderate sleepiness + anatomical risk
+            else if (appState.hasEds && appState.edsFrequency === 'several-days') {
+                if (snore === true || neck === true) {
+                    code = 'RED-2-OSA';
+                }
+            }
+            // Priority 5: Combined mild sleepiness + multiple anatomical risks
+            else if (appState.hasEds && appState.edsFrequency === 'rarely') {
+                if (snore === true && neck === true) {
+                    code = 'AMBER-2-OSA';
+                }
+            }
+            // Priority 6: Snoring only (no significant sleepiness)
+            else if (snore === true) {
                 code = 'AMBER-2-OSA';
             }
             
@@ -1173,17 +1332,31 @@
             handoverCodeEl.className = 'handover-code ' + result.color;
             
             // Clinical Summary
-            document.getElementById('summaryAge').textContent = appState.age;
+            const ageBracketDisplay = {
+                'under-18': 'Under 18',
+                '18-64': '18-64',
+                '65-plus': '65 or older'
+            };
+            document.getElementById('summaryAge').textContent = ageBracketDisplay[appState.ageBracket] || '-';
             document.getElementById('summaryBmi').textContent = appState.bmi;
-            document.getElementById('summaryElderly').textContent = appState.age >= 65 ? 'Yes' : 'No';
+            document.getElementById('summaryElderly').textContent = appState.isElderly ? 'Yes' : 'No';
             document.getElementById('summaryAction').textContent = result.action;
             
-            // Show sleepiness score if OSA pathway
-            if (code.includes('OSA')) {
-                document.getElementById('sleepinessRow').style.display = 'flex';
-                document.getElementById('summarySleepiness').textContent = appState.epworthTotal + '/24';
+            // Show sleepiness data if OSA pathway and patient has EDS
+            if (code.includes('OSA') && appState.hasEds === true) {
+                document.getElementById('alertnessRow').style.display = 'flex';
+                document.getElementById('summaryAlertness').textContent = 'Struggles to stay alert';
+                
+                document.getElementById('frequencyRow').style.display = 'flex';
+                const frequencyDisplay = {
+                    'rarely': 'Rarely',
+                    'several-days': 'Several days a week',
+                    'nearly-daily': 'Nearly every day'
+                };
+                document.getElementById('summaryFrequency').textContent = frequencyDisplay[appState.edsFrequency] || '-';
             } else {
-                document.getElementById('sleepinessRow').style.display = 'none';
+                document.getElementById('alertnessRow').style.display = 'none';
+                document.getElementById('frequencyRow').style.display = 'none';
             }
             
             showScreen('resultsScreen');
