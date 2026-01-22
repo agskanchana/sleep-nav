@@ -54,11 +54,20 @@
             padding: 2rem;
         }
 
-        .video-placeholder {
-            color: rgba(255, 255, 255, 0.6);
-            font-style: italic;
-            margin-bottom: 2rem;
-            font-size: 0.9rem;
+        .attract-video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: 0;
+            opacity: 0.3;
+        }
+
+        #startScreen > *:not(.attract-video) {
+            position: relative;
+            z-index: 1;
         }
 
         h1 {
@@ -96,10 +105,17 @@
         }
 
         .footer-text {
-            position: absolute;
-            bottom: 2rem;
-            font-size: 0.75rem;
-            color: rgba(255, 255, 255, 0.6);
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 0.75rem;
+            font-size: 0.7rem;
+            color: rgba(255, 255, 255, 0.5);
+            background: rgba(30, 58, 95, 0.95);
+            text-align: center;
+            z-index: 999;
+            backdrop-filter: blur(5px);
         }
 
         /* Form Screens */
@@ -146,6 +162,7 @@
             margin: 0 auto;
             padding: 3rem 2rem;
             width: 100%;
+            padding-bottom: 100px;
         }
 
         .form-title {
@@ -666,11 +683,12 @@
 
     <!-- Start Screen -->
     <div id="startScreen" class="screen active">
-        <div class="video-placeholder">[Video Placeholder: 1 – pre Christmas stress.mp4]</div>
+        <video class="attract-video" autoplay muted loop playsinline>
+            <source src="SleepNav_v1_04012025.mp4" type="video/mp4">
+        </video>
         <h1>Tired of being <span class="cyan">tired?</span></h1>
         <p class="subtitle">Take your 2-minute Sleep Health Check</p>
         <button class="btn-start" onclick="startAssessment()">TAP TO START</button>
-        <p class="footer-text">© 2026 Snorer.com Ltd. SleepNav® is a registered trademark (UK00003706156).</p>
     </div>
 
     <!-- Exit Screen (Under 18) -->
@@ -890,26 +908,29 @@
             </div>
         </div>
         <div class="form-container">
-            <h2 class="form-title">Sleepiness Assessment</h2>
+            <h2 class="form-title">Do you feel drowsy or sleepy when you should be alert?</h2>
             
-            <div class="sleepiness-question">
-                <p class="sleepiness-question-text">Do you struggle to stay alert during the day?</p>
-                <div class="yes-no-buttons">
-                    <button class="yes-no-btn" onclick="answerAlertness(false)">NO</button>
-                    <button class="yes-no-btn" onclick="answerAlertness(true)">YES</button>
-                </div>
+            <div class="drowsiness-options">
+                <label class="option-card" onclick="selectDrowsiness('NONE')">
+                    <input type="radio" name="drowsiness" value="NONE">
+                    <span class="option-label">No</span>
+                    <span class="option-sublabel">I feel awake and alert during the day</span>
+                </label>
+                
+                <label class="option-card" onclick="selectDrowsiness('SOMETIMES')">
+                    <input type="radio" name="drowsiness" value="SOMETIMES">
+                    <span class="option-label">Sometimes</span>
+                    <span class="option-sublabel">I occasionally struggle to stay awake</span>
+                </label>
+                
+                <label class="option-card" onclick="selectDrowsiness('OFTEN')">
+                    <input type="radio" name="drowsiness" value="OFTEN">
+                    <span class="option-label">Often</span>
+                    <span class="option-sublabel">I frequently fight sleepiness or have dozed off inappropriately</span>
+                </label>
             </div>
 
-            <div id="frequencyQuestion" class="frequency-question">
-                <p class="sleepiness-question-text">How often does this happen?</p>
-                <div class="frequency-buttons">
-                    <button class="frequency-btn" onclick="selectFrequency('rarely')">Rarely</button>
-                    <button class="frequency-btn" onclick="selectFrequency('several-days')">Several days a week</button>
-                    <button class="frequency-btn" onclick="selectFrequency('nearly-daily')">Nearly every day</button>
-                </div>
-            </div>
-
-            <button class="btn-primary" id="sleepinessSubmitBtn" onclick="submitSleepiness()" style="margin-top: 2rem;">COMPLETE ASSESSMENT</button>
+            <button class="btn-primary" id="sleepinessSubmitBtn" onclick="submitSleepiness()" style="margin-top: 2rem;">SEE RESULTS</button>
         </div>
     </div>
 
@@ -936,13 +957,9 @@
                     <span class="summary-label">Elderly Patient (≥65)</span>
                     <span class="summary-value" id="summaryElderly">-</span>
                 </div>
-                <div class="summary-row" id="alertnessRow" style="display: none;">
-                    <span class="summary-label">Daytime Alertness</span>
-                    <span class="summary-value" id="summaryAlertness">-</span>
-                </div>
-                <div class="summary-row" id="frequencyRow" style="display: none;">
-                    <span class="summary-label">Frequency</span>
-                    <span class="summary-value" id="summaryFrequency">-</span>
+                <div class="summary-row" id="sleepinessRow" style="display: none;">
+                    <span class="summary-label">Sleepiness Level</span>
+                    <span class="summary-value" id="summarySleepiness">-</span>
                 </div>
                 <div class="summary-row">
                     <span class="summary-label">Recommended Action</span>
@@ -973,8 +990,7 @@
                 snore: null,
                 neck: null
             },
-            hasEds: null,
-            edsFrequency: null,
+            drowsiness: null,
             resultCode: null
         };
 
@@ -1029,10 +1045,9 @@
             document.getElementById('weightSt').value = '';
             document.getElementById('weightLbs').value = '';
             
-            // Reset sleepiness buttons
-            document.querySelectorAll('.yes-no-btn').forEach(btn => btn.classList.remove('selected'));
-            document.querySelectorAll('.frequency-btn').forEach(btn => btn.classList.remove('selected'));
-            document.getElementById('frequencyQuestion').classList.remove('show');
+            // Reset drowsiness options
+            document.querySelectorAll('.option-card').forEach(card => card.classList.remove('selected'));
+            document.querySelectorAll('input[name="drowsiness"]').forEach(radio => radio.checked = false);
             
             setUnit('metric');
             showScreen('startScreen');
@@ -1184,84 +1199,69 @@
             showScreen('sleepinessScreen');
         }
 
-        // Sleepiness Assessment
-        function answerAlertness(response) {
-            appState.hasEds = response;
+        // Drowsiness Assessment
+        function selectDrowsiness(value) {
+            appState.drowsiness = value;
             
             // Update UI
-            document.querySelectorAll('.yes-no-btn').forEach(btn => btn.classList.remove('selected'));
-            event.target.classList.add('selected');
+            document.querySelectorAll('.option-card').forEach(card => card.classList.remove('selected'));
+            event.currentTarget.classList.add('selected');
             
-            if (response === false) {
-                // Hide frequency question
-                document.getElementById('frequencyQuestion').classList.remove('show');
-                appState.edsFrequency = null;
-            } else {
-                // Show frequency question
-                document.getElementById('frequencyQuestion').classList.add('show');
-            }
-        }
-
-        function selectFrequency(frequency) {
-            appState.edsFrequency = frequency;
-            
-            // Update UI
-            document.querySelectorAll('.frequency-btn').forEach(btn => btn.classList.remove('selected'));
-            event.target.classList.add('selected');
+            // Check the radio button
+            const radio = event.currentTarget.querySelector('input[type="radio"]');
+            if (radio) radio.checked = true;
         }
 
         function submitSleepiness() {
-            // Check if alertness question is answered
-            if (appState.hasEds === null) {
-                alert('Please answer the alertness question');
+            // Check if drowsiness question is answered
+            if (appState.drowsiness === null) {
+                alert('Please select an option');
                 return;
             }
             
-            // If YES to alertness, check frequency is answered
-            if (appState.hasEds === true && !appState.edsFrequency) {
-                alert('Please select how often this happens');
-                return;
+            // Calculate SDB risk using new logic
+            const result = calculateSDBRisk({
+                witnessed_apnea: appState.osaFlags.apnea,
+                high_bp: appState.osaFlags.bp,
+                snoring: appState.osaFlags.snore,
+                large_neck: appState.osaFlags.neck,
+                drowsiness: appState.drowsiness
+            });
+            
+            calculateResult(result.code);
+        }
+
+        // SDB Pathway Risk Calculation
+        function calculateSDBRisk(responses) {
+            const { witnessed_apnea, high_bp, snoring, large_neck, drowsiness } = responses;
+            
+            // RED conditions (priority order - first match wins)
+            if (witnessed_apnea === true) {
+                return { risk: 'RED', code: 'SDB-R1', action: 'Recommend HSAT (Home Sleep Test)' };
+            }
+            if (drowsiness === 'OFTEN' && large_neck === true) {
+                return { risk: 'RED', code: 'SDB-R2', action: 'Recommend HSAT (Home Sleep Test)' };
+            }
+            if (drowsiness === 'OFTEN' && high_bp === true) {
+                return { risk: 'RED', code: 'SDB-R3', action: 'Recommend HSAT (Home Sleep Test)' };
+            }
+            if (drowsiness === 'OFTEN' && snoring === true) {
+                return { risk: 'RED', code: 'SDB-R4', action: 'Recommend HSAT (Home Sleep Test)' };
             }
             
-            // Calculate OSA risk using new logic
-            const { apnea, bp, snore, neck } = appState.osaFlags;
-            const bmi = parseFloat(appState.bmi);
-            
-            let code = 'GREEN-2-OSA';
-            
-            // Priority 1: Witnessed apnea (immediate high risk)
-            if (apnea === true) {
-                code = 'RED-2-OSA';
+            // AMBER conditions
+            if (drowsiness === 'OFTEN') {
+                return { risk: 'AMBER', code: 'SDB-A1', action: 'Pharmacist consultation required' };
             }
-            // Priority 2: Severe sleepiness (standalone red flag)
-            else if (appState.hasEds && appState.edsFrequency === 'nearly-daily') {
-                code = 'RED-2-OSA';
+            if (drowsiness === 'SOMETIMES' && snoring === true) {
+                return { risk: 'AMBER', code: 'SDB-A2', action: 'Pharmacist consultation' };
             }
-            // Priority 3: Anatomical risk factors
-            else if (snore === true && bp === true) {
-                code = 'RED-2-OSA';
-            }
-            else if (snore === true && bmi > 30) {
-                code = 'RED-2-OSA';
-            }
-            // Priority 4: Combined moderate sleepiness + anatomical risk
-            else if (appState.hasEds && appState.edsFrequency === 'several-days') {
-                if (snore === true || neck === true) {
-                    code = 'RED-2-OSA';
-                }
-            }
-            // Priority 5: Combined mild sleepiness + multiple anatomical risks
-            else if (appState.hasEds && appState.edsFrequency === 'rarely') {
-                if (snore === true && neck === true) {
-                    code = 'AMBER-2-OSA';
-                }
-            }
-            // Priority 6: Snoring only (no significant sleepiness)
-            else if (snore === true) {
-                code = 'AMBER-2-OSA';
+            if (snoring === true && drowsiness === 'NONE') {
+                return { risk: 'AMBER', code: 'SDB-A3', action: 'Simple snorer - dental referral pathway' };
             }
             
-            calculateResult(code);
+            // GREEN (default)
+            return { risk: 'GREEN', code: 'SDB-G1', action: 'Reassurance - no intervention indicated' };
         }
 
         // Results
@@ -1276,7 +1276,28 @@
                     action: 'Refer to CBT-i (Cognitive Behavioral Therapy)',
                     color: 'red'
                 },
-                'RED-2-OSA': {
+                'SDB-R1': {
+                    icon: '🛑',
+                    title: 'Medication may not be the right answer.',
+                    message: 'Based on your profile, simple sleeping pills may be ineffective or unsafe. Please show the code below to the Pharmacist for a clinical assessment.',
+                    action: 'Recommend HSAT (Home Sleep Test)',
+                    color: 'red'
+                },
+                'SDB-R2': {
+                    icon: '🛑',
+                    title: 'Medication may not be the right answer.',
+                    message: 'Based on your profile, simple sleeping pills may be ineffective or unsafe. Please show the code below to the Pharmacist for a clinical assessment.',
+                    action: 'Recommend HSAT (Home Sleep Test)',
+                    color: 'red'
+                },
+                'SDB-R3': {
+                    icon: '🛑',
+                    title: 'Medication may not be the right answer.',
+                    message: 'Based on your profile, simple sleeping pills may be ineffective or unsafe. Please show the code below to the Pharmacist for a clinical assessment.',
+                    action: 'Recommend HSAT (Home Sleep Test)',
+                    color: 'red'
+                },
+                'SDB-R4': {
                     icon: '🛑',
                     title: 'Medication may not be the right answer.',
                     message: 'Based on your profile, simple sleeping pills may be ineffective or unsafe. Please show the code below to the Pharmacist for a clinical assessment.',
@@ -1290,11 +1311,25 @@
                     action: 'Safety Warning - Do not sell Diphenhydramine',
                     color: 'amber'
                 },
-                'AMBER-2-OSA': {
+                'SDB-A1': {
                     icon: '🛑',
                     title: 'Medication may not be the right answer.',
                     message: 'Based on your profile, simple sleeping pills may be ineffective or unsafe. Please show the code below to the Pharmacist for a clinical assessment.',
-                    action: 'Dentist Referral for Snoring Assessment',
+                    action: 'Pharmacist consultation required',
+                    color: 'amber'
+                },
+                'SDB-A2': {
+                    icon: '🛑',
+                    title: 'Medication may not be the right answer.',
+                    message: 'Based on your profile, simple sleeping pills may be ineffective or unsafe. Please show the code below to the Pharmacist for a clinical assessment.',
+                    action: 'Pharmacist consultation',
+                    color: 'amber'
+                },
+                'SDB-A3': {
+                    icon: '🛑',
+                    title: 'Medication may not be the right answer.',
+                    message: 'Based on your profile, simple sleeping pills may be ineffective or unsafe. Please show the code below to the Pharmacist for a clinical assessment.',
+                    action: 'Simple snorer - dental referral pathway',
                     color: 'amber'
                 },
                 'AMBER-3-OTHER': {
@@ -1311,11 +1346,11 @@
                     action: 'Safe Supply - Short-term Medication Available',
                     color: 'green'
                 },
-                'GREEN-2-OSA': {
+                'SDB-G1': {
                     icon: '✅',
                     title: 'Short-term relief available.',
                     message: 'Please speak to the counter staff for product advice.',
-                    action: 'Reassurance - No Immediate Concerns',
+                    action: 'Reassurance - no intervention indicated',
                     color: 'green'
                 }
             };
@@ -1342,21 +1377,17 @@
             document.getElementById('summaryElderly').textContent = appState.isElderly ? 'Yes' : 'No';
             document.getElementById('summaryAction').textContent = result.action;
             
-            // Show sleepiness data if OSA pathway and patient has EDS
-            if (code.includes('OSA') && appState.hasEds === true) {
-                document.getElementById('alertnessRow').style.display = 'flex';
-                document.getElementById('summaryAlertness').textContent = 'Struggles to stay alert';
-                
-                document.getElementById('frequencyRow').style.display = 'flex';
-                const frequencyDisplay = {
-                    'rarely': 'Rarely',
-                    'several-days': 'Several days a week',
-                    'nearly-daily': 'Nearly every day'
+            // Show sleepiness data if SDB pathway
+            if (code.includes('SDB') && appState.drowsiness !== null) {
+                document.getElementById('sleepinessRow').style.display = 'flex';
+                const drowsinessDisplay = {
+                    'NONE': 'None',
+                    'SOMETIMES': 'Sometimes',
+                    'OFTEN': 'Often'
                 };
-                document.getElementById('summaryFrequency').textContent = frequencyDisplay[appState.edsFrequency] || '-';
+                document.getElementById('summarySleepiness').textContent = drowsinessDisplay[appState.drowsiness] || '-';
             } else {
-                document.getElementById('alertnessRow').style.display = 'none';
-                document.getElementById('frequencyRow').style.display = 'none';
+                document.getElementById('sleepinessRow').style.display = 'none';
             }
             
             showScreen('resultsScreen');
@@ -1413,5 +1444,8 @@
             });
         }
     </script>
+
+    <!-- Global Footer -->
+    <div class="footer-text">© 2026 Snorer.com Ltd. SleepNav® is a registered trademark (UK00003706156).</div>
 </body>
 </html>
